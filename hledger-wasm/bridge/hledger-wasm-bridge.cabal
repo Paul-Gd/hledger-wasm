@@ -1,0 +1,21 @@
+cabal-version: 2.4
+name:          hledger-wasm-bridge
+version:       0.1.0.0
+synopsis:      WASM bridge for hledger-lib
+license:       MIT
+build-type:    Simple
+
+executable hledger-wasm
+  main-is:          Main.hs
+  build-depends:
+    , base >= 4.14 && < 5
+    , hledger-lib
+    , text
+    , bytestring
+    , aeson
+    , time
+    , containers
+    , mtl
+    , transformers
+  default-language: Haskell2010
+  ghc-options:      -O2

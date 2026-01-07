@@ -1,0 +1,27 @@
+{
+  "name": "hledger-wasm",
+  "version": "0.1.0",
+  "description": "hledger compiled to WebAssembly for browser use",
+  "type": "module",
+  "main": "js/hledger-bridge.js",
+  "exports": {
+    ".": "./js/hledger-bridge.js",
+    "./hledger-wasm.wasm": "./dist/hledger-wasm.wasm"
+  },
+  "files": [
+    "js/hledger-bridge.js",
+    "dist/hledger-wasm.wasm"
+  ],
+  "scripts": {
+    "build": "./build.sh"
+  },
+  "dependencies": {
+    "@bjorn3/browser_wasi_shim": "^0.4.2"
+  },
+  "keywords": ["hledger", "wasm", "webassembly", "accounting", "ledger"],
+  "license": "GPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/your-username/hledger-wasm"
+  }
+}
