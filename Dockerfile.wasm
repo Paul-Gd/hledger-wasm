@@ -1,0 +1,44 @@
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    jq \
+    unzip \
+    xz-utils \
+    zstd \
+    make \
+    libgmp-dev \
+    zlib1g-dev \
+    libffi-dev \
+    libnuma-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install the GHC WASM toolchain.
+# ghc-wasm-meta provides wasm32-wasi-ghc, wasm32-wasi-cabal, etc.
+# It creates /opt/ghc-wasm/env with PATH and other settings.
+RUN curl -sSL https://gitlab.haskell.org/ghc/ghc-wasm-meta/-/raw/master/bootstrap.sh | \
+    PREFIX=/opt/ghc-wasm sh
+
+ENV PATH="/opt/ghc-wasm/bin:${PATH}"
+
+# Update Hackage index before copying source so this layer is cached independently.
+RUN . /opt/ghc-wasm/env && wasm32-wasi-cabal update
+
+# cabal.project in hledger-wasm/ references ../hledger-lib, so both must sit
+# under the same parent directory inside the image.
+COPY hledger-lib /src/hledger-lib
+COPY hledger-wasm /src/hledger-wasm
+
+WORKDIR /src/hledger-wasm
+
+RUN . /opt/ghc-wasm/env && wasm32-wasi-cabal build hledger-wasm
+
+# Collect output into dist/ so `docker cp` from the caller can find it at a
+# known path: /src/hledger-wasm/dist/hledger-wasm.wasm
+RUN mkdir -p dist && \
+    WASM=$(find dist-newstyle -name 'hledger-wasm.wasm' -type f | head -1) && \
+    cp "$WASM" dist/hledger-wasm.wasm && \
+    echo "Built $(ls -lh dist/hledger-wasm.wasm | awk '{print $5}')"
