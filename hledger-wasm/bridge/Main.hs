@@ -136,7 +136,7 @@ reportItemToJson _acct (torig, _tacct, _isSplit, otherAccts, change, runBal) =
 getAccountBalance :: Journal -> T.Text -> (T.Text, MixedAmount)
 getAccountBalance journal acct =
     let postings = filter (\p -> paccount p == acct) (journalPostings journal)
-        bal = sumPostings postings
+        bal = mixedAmountStripCosts $ sumPostings postings
     in (acct, bal)
 
 showCommodity :: CommoditySymbol -> T.Text
